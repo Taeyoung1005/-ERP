@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    {% include './base.html' %}
+    <style>
+        th, td {
+            padding:10px;
+            white-space:nowrap;
+        }
+
+        div {
+            padding:10px;
+        }
+    
+        label {
+            margin-right:10px;
+        }
+
+        table {
+            font-size:0.6rem;
+        }
+    </style>
+</head>
+<body>
+    {% include 'web/navbar.html' %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h4><b>생성/수정</b></h4>
+                <form id="create" method="POST">
+                    {% csrf_token %}
+                    <div>
+                        <label>제품코드</label>
+                        <input type="text" name="제품코드" id="제품코드">
+                    </div>
+                    <div>
+                        <label>제품명</label>
+                        <input type="text" name="제품명" id="제품명">
+                    </div>
+                    <div>
+                        <label>포장단위</label>
+                        <input type="text" name="포장단위" id="포장단위">
+                    </div>
+                    <div>
+                        <label>제약사</label>
+                        <input type="text" name="제약사" id="제약사">
+                    </div>
+                    <div>
+                        <label>보험코드</label>
+                        <input type="text" name="제약사" id="제약사">
+                    </div>
+                    <div>
+                        <label>표준코드</label>
+                        <input type="text" name="표준코드" id="표준코드">
+                    </div>
+                    <div>
+                        <label>기준가</label>
+                        <input type="text" name="기준가" id="기준가">
+                    </div>
+                    <div>
+                        <label>급여</label>
+                        <input type="text" name="급여" id="급여">
+                    </div>
+                    <div>
+                        <label>구분</label>
+                        <input type="text" name="구분" id="구분">
+                    </div>
+                    <div>
+                        <label>성분코드</label>
+                        <input type="text" name="성분코드" id="성분코드">
+                    </div>
+                    <br>
+                    <input class="btn btn-outline-dark" type="submit" value="생성/수정" onclick=product_create()>
+                </form>
+                <hr>
+                <h4><b>삭제</b></h4>
+                <form method="DELETE">
+                    <div>
+                        <label>코드</label>
+                        <input type="text" name="코드"  id="삭제코드">
+                    </div>
+                    <br>
+                    <input class="btn btn-outline-dark"  type="submit" value="삭제" onclick=product_delete()>
+                </form>
+            </div>
+            <div class="col text-center">
+                    <table class="table table-striped table-hover table-bordered align-middle">
+                        <thead>
+                            <th>제품코드</th>
+                            <th>제품명</th>
+                            <th>포장단위</th>
+                            <th>제약사</th>
+                            <th>보험코드</th>
+                            <th>표준코드</th>
+                            <th>기준가</th>
+                            <th>급여</th>
+                            <th>구분</th>
+                            <th>성분코드</th>
+                        </thead>
+                        <tbody class = "table_body"></tbody>
+                    </table>
+                {% include 'web/pagination.html'%}
+            </div>
+        </div>
+    </div>
+    <script>
+        var current_url = $(location).attr('href');
+        var data_length;
+
+        function product_delete(){
+            var delete_code = document.getElementById('삭제코드').value;
+            
+            $.ajax({
+                url: "/api/product/" + delete_code + "/",
+                method: "DELETE",
+                success: function(data, status, xhr) {
+                    console.log("성공");
+                    console.log(data);
+                },
+                error: function(xhr, status, error) {
+                    console.log("에러");
+                    console.log(status);
+                }
+            })
+        };
+
+        function product_create(){
+            var queryString = $('#create').serialize();
+            
+            $.ajax({
+                url: "/api/product/",
+                type: "POST",
+                data: queryString,
+                dataType: "html",
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function(data, status, xhr) {
+                    console.log("성공");
+                    console.log(data);
+                },
+                error: function(xhr, status, error) {
+                    console.log("에러");
+                    console.log(status);
+                }
+            })
+        };
+
+        var pk = $(location).attr('href').split('/')[5];
+        if(pk == ''){
+            pk = 1;
+        }
+        var url	= "/api/product/?format=json&page=" + pk; // 요청이 전송될 URL 주소
+
+        $.ajax ({
+            // URL은 필수 요소이므로 반드시 구현해야 하는 Property입니다.
+            url	: url, // 요청이 전송될 URL 주소
+            type	: "GET", // http 요청 방식 (default: ‘GET’)
+            async : true,  // 요청 시 동기화 여부. 기본은 비동기(asynchronous) 요청 (default: true)
+            cache : true,  // 캐시 여부
+            timeout : 3000, // 요청 제한 시간 안에 완료되지 않으면 요청을 취소하거나 error 콜백을 호출.(단위: ms)
+            data  : {}, // 요청 시 포함되어질 데이터
+            processData : true, // 데이터를 컨텐트 타입에 맞게 변환 여부
+            //contentType : "application/json", // 요청 컨텐트 타입 
+            dataType    : "json", // 응답 데이터 형식 (명시하지 않을 경우 자동으로 추측)
+            beforeSend  : function () {
+                // XHR Header를 포함해서 HTTP Request를 하기전에 호출됩니다.
+            },
+            success : function(data, status, xhr) {
+                // 정상적으로 응답 받았을 경우에는 success 콜백이 호출되게 됩니다.
+                // 이 콜백 함수의 파라미터에서는 응답 바디, 응답 코드 그리고 XHR 헤더를 확인할 수 있습니다.
+                console.log(status);
+                console.log(data)
+                data_length = data['count'];
+                data = data['results'];
+                str = '<TR>'; 
+                $.each(data , function(i){
+                    str += '<TD>' + '<a href="/web/product_detail/'+ data[i].제품코드 +'">' + data[i].제품코드 + '</a>' + '</TD>' +
+                            '<TD>' + data[i].제품명 + '</TD>' +
+                            '<TD>' + data[i].포장단위 + '</TD>' +
+                            '<TD>' + data[i].제약사 + '</TD>' +
+                            '<TD>' + data[i].보험코드 + '</TD>' +
+                            '<TD>' + data[i].표준코드 + '</TD>' +
+                            '<TD>' + data[i].기준가 + '</TD>' +
+                            '<TD>' + data[i].급여 + '</TD>' +
+                            '<TD>' + data[i].구분 + '</TD>' +
+                            '<TD>' + data[i].성분코드 + '</TD>';
+                    str += '</TR>';
+                });
+                $('.table_body').append(str);
+            },
+            error	: function(xhr, status, error) {
+                    // 응답을 받지 못하였다거나 정상적인 응답이지만 데이터 형식을 확인할 수 없기 때문에 
+                    // error 콜백이 호출될 수 있습니다.
+                    // 예를 들어, dataType을 지정해서 응답 받을 데이터 형식을 지정하였지만,
+                    // 서버에서는 다른 데이터형식으로 응답하면  error 콜백이 호출되게 됩니다.
+                    console.log(status);
+            },
+            complete : function(xhr, status) {
+                // success와 error 콜백이 호출된 후에 반드시 호출됩니다.
+                // try - catch - finally의 finally 구문과 동일합니다.
+                console.log(status);
+            }
+        });
+        var pagestart = 1;
+
+        function up(){
+            pagestart += 5;
+            if(pagestart < 1){
+                pagestart = 1;
+            }
+            if(pagestart > data_length/10){
+                pagestart = data_length/10;
+            }
+            
+            console.log(data_length/10);
+            console.log(pagestart);
+
+            for(let i = pagestart; i<pagestart+5; i++){
+                $(".page-button"+ (i-5)).html('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/product/'+i+'">'+i+'</a></li>');
+            }
+        }
+
+        function down(){
+            pagestart -= 5;
+
+            if(pagestart < 1){
+                pagestart = 1;
+            }
+            console.log(pagestart);
+            for(let i = pagestart; i<pagestart+5; i++){
+                $(".page-button"+ (i+5)).html('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/product/'+i+'">'+i+'</a></li>');
+            }
+        }
+
+        for(let i = pagestart+4; i>pagestart-1; i--){
+            $("#page-down").after('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/product/'+i+'">'+i+'</a></li>');
+        }
+
+        window.onload = function(){
+            $(".page-button"+ pk).html('<li class="page-button'+pk+' active" value='+pk+'><a class="page-link" href="/web/product/'+pk+'">'+pk+'</a></li>');
+        }
+    </script>
+</body>
+</html>

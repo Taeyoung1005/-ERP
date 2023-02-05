@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    {% include './base.html' %}
+    <style>
+        div {
+            padding:10px;
+        }
+    
+        label {
+            margin-right:10px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'web/navbar.html' %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h4><b>수정</b></h4>
+                <form id="update" method="POST">
+                    {% csrf_token %}
+                    <div>
+                        <label>코드</label>
+                        <input type="text" name="코드" id="코드">
+                    </div>
+                    <div>
+                        <label>계정명</label>
+                        <input type="text" name="계정명" id="계정명">
+                    </div>
+                    <div>
+                        <label>계정 대분류</label>
+                        <input type="text" name="계정_대분류" id="계정_대분류">
+                    </div>
+                    <div>
+                        <label>계정 중분류</label>
+                        <input type="text" name="계정_중분류" id="계정_중분류">
+                    </div>
+                    <div>
+                        <label>계정 소분류</label>
+                        <input type="text" name="계정_소분류" id="계정_소분류">
+                    </div>
+                    <div>
+                        <label>재무제표</label>
+                        <input type="text" name="재무제표" id="재무제표">
+                    </div>
+                    <div>
+                        <label>비고</label>
+                        <input type="text" name="비고" id="비고">
+                    </div>
+                    <br>
+                    <input class="btn btn-outline-dark" type="submit" value="수정" onclick=coa_create()>
+                    <input class="btn btn-outline-dark" type="button" value="삭제" onclick=coa_delete()>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+        });
+
+        const pk = $(location).attr('href').split('/')[5];
+        
+        function coa_delete(){            
+            $.ajax({
+                url: "/api/coa/" + pk + "/",
+                method: "DELETE",
+                success: function(data, status, xhr) {
+                    console.log("성공");
+                    console.log(data);
+                    location.href = '/web/coa';
+                },
+                error: function(xhr, status, error) {
+                    console.log("에러");
+                    console.log(status);
+                }
+            })
+        };
+
+        $.ajax({
+            url: "/api/coa/"+pk,
+            type: "GET",
+            dataType: "json",
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(data, status, xhr) {
+                console.log("성공");
+                console.log(data);
+                $('#코드').val(data['코드']);
+                $('#계정명').val(data['계정명']);
+                $('#계정_대분류').val(data['계정_대분류']);
+                $('#계정_중분류').val(data['계정_중분류']);
+                $('#계정_소분류').val(data['계정_소분류']);
+                $('#재무제표').val(data['재무제표']);
+                $('#비고').val(data['비고']);
+            },
+            error: function(xhr, status, error) {
+                console.log("에러");
+                console.log(status);
+            }
+        });
+    </script>
+</body>
+</html>

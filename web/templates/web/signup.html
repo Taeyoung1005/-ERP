@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include './base.html' %}
+</head>
+<body>
+    {% include 'web/navbar.html' %}
+    <br>
+    <br>
+    <div style="display: flex; justify-content: center; align-content: center;">
+        <form class="signup">
+            <div>
+                <label> Nickname : </label>
+                <input id="nickname" type="text">
+            </div>
+            <br>
+            <div>
+                <label> Email : </label>
+                <input id="email" type="text">
+            </div>
+            <br>
+            <div>
+                <label> Name : </label>
+                <input id="name" type="text">
+            </div>
+            <br>
+            <div>
+                <label> Password : </label>
+                <input id="password" type="text">
+            </div>
+            <br>
+            <input type="button" value="회원가입" onclick=signup()>
+        </form>
+    </div>
+</body>
+</html>
