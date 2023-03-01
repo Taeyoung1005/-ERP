@@ -15,5 +15,8 @@ urlpatterns = [
     path('product/', views.product_home),
     path('', views.main),
 
+    path('hr/', views.hr_home),
+    path('hr/<int:pk>/', views.hr_home),
+
     path('login/', views.login)
 ]

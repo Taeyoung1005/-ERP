@@ -30,5 +30,19 @@ def product_insert(request):
 def product_delete(request):
     return render(request, 'web/product.html')
 
+
+def hr_home(request, pk=None):
+    return render(request, 'web/hr.html')
+
+def hr_detail(request, pk):
+    return render(request, 'web/hr_detail.html')
+
+def hr_insert(request):
+    return render(request, 'web/hr.html')
+
+def hr_delete(request):
+    return render(request, 'web/hr.html')
+
+
 def login(request):
     return render(request, 'web/login.html')

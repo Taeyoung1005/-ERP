@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import coa, product, User
+from .models import coa, product, User, HR
 
 # Serializers define the API representation.
 class coaSerializer(serializers.ModelSerializer):
@@ -11,6 +11,11 @@ class coaSerializer(serializers.ModelSerializer):
 class productSerializer(serializers.ModelSerializer):
     class Meta:
         model = product
+        fields = '__all__'
+
+class HRSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HR
         fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
