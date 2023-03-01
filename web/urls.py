@@ -17,6 +17,7 @@ urlpatterns = [
 
     path('hr/', views.hr_home),
     path('hr/<int:pk>/', views.hr_home),
+    path('hr_detail/<int:pk>/', views.hr_detail),
 
     path('login/', views.login)
 ]

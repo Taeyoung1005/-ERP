@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from api.models import *
+from .forms import PostForm
 
 def main(request):
     return render(request, 'web/main.html')
@@ -35,7 +36,8 @@ def hr_home(request, pk=None):
     return render(request, 'web/hr.html')
 
 def hr_detail(request, pk):
-    return render(request, 'web/hr_detail.html')
+    form = PostForm
+    return render(request, 'web/hr_detail.html', {'form':form})
 
 def hr_insert(request):
     return render(request, 'web/hr.html')

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    {% include './base.html' %}
+</head>
+<body>
+    {% include 'web/navbar.html' %}
+    <div class="container" style="padding:2rem;">
+        <form id='form'>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input class="btn btn-outline-dark" type="button" value="수정" onclick='hr_update()'>
+            <input class="btn btn-outline-dark" type="button" value="삭제" onclick='hr_delete()'>
+        </form>
+    </div>
+    <script>
+        $.ajaxSetup({
+            headers: { "X-CSRFToken": '{{csrf_token}}' }
+        });
+
+        var pk = $(location).attr('href').split('/')[5];
+        
+        function hr_delete(){            
+            $.ajax({
+                url: "/api/hr/" + pk + "/",
+                method: "DELETE",
+                success: function(data, status, xhr) {
+                    console.log("성공");
+                    location.href = '/web/hr';
+                },
+                error: function(xhr, status, error) {
+                    console.log("에러");
+                }
+            })
+        };
+
+        function hr_update(){
+            var form_data = $('#form').serialize();
+            $.ajax({
+                url: "/api/hr/" + pk + "/",
+                method: "PUT",
+                data:form_data,
+                success: function(data, status, xhr) {
+                    console.log("update성공");
+                    location.href = '/web/hr';
+                },
+                error: function(xhr, status, error) {
+                    console.log("update에러");
+                }
+            })
+        };
+
+        $.ajax({
+            url: "/api/hr/"+pk,
+            type: "GET",
+            dataType: "json",
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            success: function(data, status, xhr) {
+                console.log("성공");
+
+                data_keys = Object.keys(data);
+                data_length = data_keys.length;
+
+                for(var i=0; i<data_length; i++){
+                    $('#id_'+data_keys[i]).val(data[data_keys[i]]);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log("에러");
+            }
+        });
+    </script>
+</body>
+</html>

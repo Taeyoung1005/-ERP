@@ -84,7 +84,7 @@ class User(AbstractBaseUser):
         return self.nickname
     
 class HR(models.Model):
-    사번 = models.IntegerField(null=False, primary_key=True)
+    사번 = models.IntegerField(primary_key=True)
     구분 = models.CharField(max_length=20, default='', null=True, blank=True)
     이름 = models.CharField(max_length=20, default='', null=True, blank=True)
     영문이름 = models.CharField(max_length=20, default='', null=True, blank=True)

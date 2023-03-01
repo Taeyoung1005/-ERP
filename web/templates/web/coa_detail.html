@@ -60,11 +60,11 @@
             headers: { "X-CSRFToken": '{{csrf_token}}' }
         });
 
-        const pk = $(location).attr('href').split('/')[5];
-        
+        var pk = $(location).attr('href').split('/')[5];
+
         function coa_delete(){            
             $.ajax({
-                url: "/api/coa/" + pk + "/",
+                url: "/api/coa/?page=" + pk + "/",
                 method: "DELETE",
                 success: function(data, status, xhr) {
                     console.log("성공");

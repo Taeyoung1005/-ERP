@@ -60,20 +60,19 @@
     {% include 'web/navbar.html' %}
     <div class="container">
         <div class="row">
-            <div class="col text-center">
-                <input type="radio" name="chk_info" id="재직자" value="재직자">재직자</input>
-                <input type="radio" name="chk_info" id="퇴사자" value="퇴사자">퇴사자</input>
-                <table class="table table-striped table-hover table-bordered align-middle" style="width:100%;">
+            <h1>재직자</h1>
+            <div class="col text-center" style="overflow:auto;">
+                <table class="table table-striped table-hover table-bordered align-middle">
                     <thead class="table_head"></thead>
                     <tbody class="table_body"></tbody>
                 </table>
-                {% include 'web/pagination.html'%}
+            </div>
+            {% include 'web/pagination.html'%}
         </div>
     </div>
     <script>
         var current_url = $(location).attr('href');
         var data_length;
-        var radio_value = '재직자';
 
         function coa_delete(){
             var delete_code = document.getElementById('삭제코드').value;
@@ -117,18 +116,6 @@
         if(pk == ''){
             pk = 1;
         }
-
-        $('#재직자').on("click", function(){
-            radio_value = $(this).attr('value');
-            select();
-            console.log(radio_value);
-        })
-
-        $('#퇴사자').on("click", function(){
-            radio_value = $(this).attr('value');
-            select();
-            console.log(radio_value);
-        })
         
         var url	= "/api/hr/?format=json&page=" + pk;
         $.ajax ({
@@ -149,6 +136,8 @@
                 for(var i=0; i<Object.keys(data[0]).length-1; i++){
                     temp += '<TD>' + Object.keys(data[0])[i] + '</TD>';
                 }
+                
+                temp += '<TD>기타</TD>';
                 temp += '</TR>';
 
                 $('.table_head').append(temp);
@@ -156,13 +145,13 @@
                 $.each(data , function(i){
                     str += '<TR>';
                     data_key = Object.keys(data[i]);
-
-                    str += '<TD>' + '<a href="/web/hr/'+ data[i].사번 +'">' + data[i].사번 + '</a>' + '</TD>';
                     
-                    for(var j = 1; j<data_key.length-1; j++){
-                        if(data[i].is_activate == true)
-                            str += '<TD>' + data[i][data_key[j]] + '</TD>'
+                    for(var j = 0; j<data_key.length-1; j++){
+                        str += '<TD>' + data[i][data_key[j]] + '</TD>'
                     }
+
+                    str += '<TD><input value="수정" type="button" onclick=location.href="/web/hr_detail/' + data[i].사번 + '"></input></TD>';
+
                     str += '</TR>';
                 });
 
@@ -175,55 +164,7 @@
                 console.log(status);
             }
         });
-        function select(){
-            var url	= "/api/hr/?format=json&page=" + pk;
-            $.ajax ({
-                url	: url,
-                type : "GET",
-                async : true,
-                cache : true,
-                timeout : 3000, 
-                processData : true, 
-                dataType    : "json",
-                success : function(data, status, xhr) {
-                    console.log(status);
-                    console.log(data)
-                    data_length = data['count'];
-                    data = data['results'];
-                    str = '';
-                    // temp = '<TR>';
-                    // for(var i=0; i<Object.keys(data[0]).length-1; i++){
-                    //     temp += '<TD>' + Object.keys(data[0])[i] + '</TD>';
-                    // }
-                    // temp += '</TR>';
 
-                    // $('.table_head').append(temp);
-
-                    $.each(data , function(i){
-                        str += '<TR>';
-                        data_key = Object.keys(data[i]);
-
-                        str += '<TD>' + '<a href="/web/hr/'+ data[i].사번 +'">' + data[i].사번 + '</a>' + '</TD>';
-                        
-                        for(var j = 1; j<data_key.length-1; j++){
-                            if(data[i].is_activate == true && radio_value == '재직자')
-                                str += '<TD>' + data[i][data_key[j]] + '</TD>'
-                            if(data[i].is_activate == false && radio_value == '퇴사자')
-                                str += '<TD>' + data[i][data_key[j]] + '</TD>'
-                        }
-                        str += '</TR>';
-                    });
-
-                    $('.table_body').html(str);
-                },
-                error	: function(xhr, status, error) {
-                        console.log(status);
-                },
-                complete : function(xhr, status) {
-                    console.log(status);
-                }
-            });
-            }
         var pagestart = 1;
 
         function up(){
