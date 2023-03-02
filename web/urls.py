@@ -17,7 +17,10 @@ urlpatterns = [
 
     path('hr/', views.hr_home),
     path('hr/<int:pk>/', views.hr_home),
+    path('hr_retired/', views.hr_retired),
+    path('hr_retired/<int:pk>/', views.hr_retired),
     path('hr_detail/<int:pk>/', views.hr_detail),
 
-    path('login/', views.login)
+    path('hr/export', views.hr_export),
+    path('login/', views.login),
 ]

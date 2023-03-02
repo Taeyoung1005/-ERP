@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="kr">
 <head>
-    {% include './base.html' %}
+    {% include '../base.html' %}
 </head>
 <body>
     {% include 'web/navbar.html' %}
@@ -11,6 +11,9 @@
             {{ form.as_p }}
             <input class="btn btn-outline-dark" type="button" value="수정" onclick='hr_update()'>
             <input class="btn btn-outline-dark" type="button" value="삭제" onclick='hr_delete()'>
+            {% comment %} <input class="btn btn-outline-dark" type="button" value="퇴직" onclick='hr_severance()'>
+            <input class="btn btn-outline-dark" type="button" value="휴직" onclick='leave of absence'>
+            <input class="btn btn-outline-dark" type="button" value="복직" onclick='reinstatement'> {% endcomment %}
         </form>
     </div>
     <script>

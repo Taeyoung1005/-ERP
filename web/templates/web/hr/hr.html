@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    {% include '../base.html' %}
+    <style>
+        th, td {
+            padding:10px;
+            white-space:nowrap;
+        }
+
+        div {
+            padding:10px;
+        }
+    
+        label {
+            margin-right:10px;
+        }
+
+        table {
+            font-size:0.7rem;
+        }
+
+        .buttons {
+            position: relative;
+            padding: 1rem 0;
+            display: inline-flex;
+            justify-content: center;
+          }
+          
+          .button {
+            padding: 0 1rem;
+            font-size: 1.2rem;
+            color: #333;
+            background: transparent;
+            border: 0;
+            outline: 0;
+            cursor: pointer;
+          }
+          
+          .button.active,
+          .button:hover {
+            color: #1f975d;
+            font-weight: 600;
+            text-decoration: underline;
+          }
+          
+          .prev {
+            position: absolute;
+            left: -2.5rem;
+          }
+          
+          .next {
+            position: absolute;
+            right: -2.5rem;
+          }
+
+          .dropdown-item:hover {
+            background-color : skyblue;
+          }
+    </style>
+</head>
+<body>
+    {% include 'web/navbar.html' %}
+    <div class="container">
+        <div class="row">
+            <h1>재직자</h1>
+            <div class="col text-center" style="overflow:auto;">
+                <table class="table table-striped table-hover table-bordered align-middle">
+                    <thead class="table_head"></thead>
+                    <tbody class="table_body"></tbody>
+                </table>
+            </div>
+            {% include 'web/pagination.html'%}
+        </div>
+    </div>
+    <script>
+        var current_url = $(location).attr('href');
+        var data_length;
+
+        var pk = current_url.split('/')[5];
+        if(pk == ''){
+            pk = 1;
+        }
+        
+        var url	= "/api/hr/?format=json&is_activate=true&page=" + pk;
+        $.ajax ({
+            url	: url,
+            type : "GET",
+            async : true,
+            cache : true,
+            timeout : 3000, 
+            processData : true, 
+            dataType    : "json",
+            success : function(data, status, xhr) {
+                console.log(status);
+                console.log(data)
+                data_length = data['count'];
+                data = data['results'];
+                str = '';
+                temp = '<TR>';
+                for(var i=0; i<Object.keys(data[0]).length-1; i++){
+                    temp += '<TD>' + Object.keys(data[0])[i] + '</TD>';
+                }
+                
+                temp += '<TD></TD>';
+                temp += '</TR>';
+
+                $('.table_head').append(temp);
+
+                $.each(data , function(i){
+                    str += '<TR>';
+                    data_key = Object.keys(data[i]);
+                    
+                    for(var j = 0; j<data_key.length-1; j++){
+                        str += '<TD>' + data[i][data_key[j]] + '</TD>'
+                    }
+
+                    str += '<TD><div class="dropdown"><button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">옵션</button>'
+                    str += '<ul class="dropdown-menu">'
+                    str += '<li><a class="dropdown-item" href="/web/hr_detail/'+ data[i].사번 +'">수정</a></li>'
+                    str += '<li class="dropdown-item" onclick="retired('+ data[i].사번 +')">퇴직</li>'
+                    str += '</ul></div></TD>'
+                    {% comment %} str += '<TD><input value="수정" type="button" onclick=location.href="/web/hr_detail/' + data[i].사번 + '"></input></TD>'; {% endcomment %}
+
+                    str += '</TR>';
+                });
+
+                $('.table_body').append(str);
+            },
+            error	: function(xhr, status, error) {
+                    console.log(status);
+            },
+            complete : function(xhr, status) {
+                console.log(status);
+            }
+        });
+
+        function retired(id){
+            var json_data = {"is_activate" : false};
+
+            $.ajax({
+                url: "/api/hr/" + id + "/",
+                method: "PATCH",
+                dataType:"json",
+                data:JSON.stringify(json_data),
+                contentType: 'application/json; charset=UTF-8',
+                success: function(data, status, xhr) {
+                    console.log("retired 성공");
+                    location.href = '/web/hr';
+                },
+                error: function(xhr, status, error) {
+                    console.log("retired 에러");
+                }
+            });
+        }
+
+        var pagestart = 1;
+
+        function up(){
+            pagestart += 5;
+            if(pagestart < 1){
+                pagestart = 1;
+            }
+            if(pagestart > data_length/10){
+                pagestart = data_length/10;
+            }
+            
+            console.log(data_length/10);
+            console.log(pagestart);
+
+            for(let i = pagestart; i<pagestart+5; i++){
+                $(".page-button"+ (i-5)).html('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/hr/'+i+'">'+i+'</a></li>');
+            }
+        }
+
+        function down(){
+            pagestart -= 5;
+
+            if(pagestart < 1){
+                pagestart = 1;
+            }
+            console.log(pagestart);
+            for(let i = pagestart; i<pagestart+5; i++){
+                $(".page-button"+ (i+5)).html('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/hr/'+i+'">'+i+'</a></li>');
+            }
+        }
+
+        for(let i = pagestart+4; i>pagestart-1; i--){
+            $("#page-down").after('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/hr/'+i+'">'+i+'</a></li>');
+        }
+
+        window.onload = function(){
+            $(".page-button"+ pk).html('<li class="page-button'+pk+' active" value='+pk+'><a class="page-link" href="/web/hr/'+pk+'">'+pk+'</a></li>');
+        }
+    </script>
+</body>
+</html>

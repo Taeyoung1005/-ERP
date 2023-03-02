@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     "api",
     "rest_framework",
     "web",
+    "django_filters",
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -132,10 +134,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    # 'DEFAULT_PERMISSION_CLASSES': [
-        
-    #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-    # ]
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'PAGE_SIZE': 10,
 }
+
+IMPORT_EXPORT_USE_TRANSACTIONS = True
