@@ -123,7 +123,7 @@ class HR(models.Model):
     어학사항3 = models.CharField(max_length=20, default='', null=True, blank=True)
     어학사항4 = models.CharField(max_length=20, default='', null=True, blank=True)
     어학사항5 = models.CharField(max_length=20, default='', null=True, blank=True)
-    is_activate = models.BooleanField(default=True)
+    재직or퇴직 = models.CharField(max_length=2, default='재직')
 
     class Meta:
         managed = True

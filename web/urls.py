@@ -22,5 +22,6 @@ urlpatterns = [
     path('hr_detail/<int:pk>/', views.hr_detail),
 
     path('hr/export', views.hr_export),
+    path('hr/import', views.hr_import),
     path('login/', views.login),
 ]

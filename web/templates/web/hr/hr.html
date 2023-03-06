@@ -64,6 +64,16 @@
     <div class="container">
         <div class="row">
             <h1>재직자</h1>
+            <form id="search">
+                <div align="left">
+                    <input type="text" value="">
+                    <button type="submit">검색</button>
+                </div>
+            </form>
+            <div align="right">
+                <input id="import" type="button" value="Import" onclick="location.href='import'">
+                <input id="export" type="button" value="Export" onclick="location.href='export'">
+            </div>
             <div class="col text-center" style="overflow:auto;">
                 <table class="table table-striped table-hover table-bordered align-middle">
                     <thead class="table_head"></thead>
@@ -82,15 +92,11 @@
             pk = 1;
         }
         
-        var url	= "/api/hr/?format=json&is_activate=true&page=" + pk;
+        var url	= "/api/hr/?재직or퇴직=재직&page=";
         $.ajax ({
-            url	: url,
+            url	: url + pk,
             type : "GET",
-            async : true,
-            cache : true,
-            timeout : 3000, 
-            processData : true, 
-            dataType    : "json",
+            contentType: 'application/json; charset=UTF-8',
             success : function(data, status, xhr) {
                 console.log(status);
                 console.log(data)
@@ -114,14 +120,12 @@
                     for(var j = 0; j<data_key.length-1; j++){
                         str += '<TD>' + data[i][data_key[j]] + '</TD>'
                     }
-
+                    
                     str += '<TD><div class="dropdown"><button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">옵션</button>'
                     str += '<ul class="dropdown-menu">'
                     str += '<li><a class="dropdown-item" href="/web/hr_detail/'+ data[i].사번 +'">수정</a></li>'
                     str += '<li class="dropdown-item" onclick="retired('+ data[i].사번 +')">퇴직</li>'
                     str += '</ul></div></TD>'
-                    {% comment %} str += '<TD><input value="수정" type="button" onclick=location.href="/web/hr_detail/' + data[i].사번 + '"></input></TD>'; {% endcomment %}
-
                     str += '</TR>';
                 });
 
@@ -136,17 +140,16 @@
         });
 
         function retired(id){
-            var json_data = {"is_activate" : false};
+            var json_data = {"재직or퇴직" : "퇴직"};
 
             $.ajax({
                 url: "/api/hr/" + id + "/",
                 method: "PATCH",
-                dataType:"json",
                 data:JSON.stringify(json_data),
                 contentType: 'application/json; charset=UTF-8',
                 success: function(data, status, xhr) {
                     console.log("retired 성공");
-                    location.href = '/web/hr';
+                    location.reload();
                 },
                 error: function(xhr, status, error) {
                     console.log("retired 에러");

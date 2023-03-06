@@ -173,11 +173,7 @@
         $.ajax ({
             url	: url,
             type : "GET",
-            async : true,
-            cache : true,
-            timeout : 3000, 
-            processData : true, 
-            dataType    : "json",
+            contentType: 'application/json; charset=UTF-8',
             success : function(data, status, xhr) {
                 console.log(status);
                 console.log(data)

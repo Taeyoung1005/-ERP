@@ -5,4 +5,3 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = HR
         fields = '__all__'
-        exclude = ['is_activate']

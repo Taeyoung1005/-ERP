@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    {% include '../base.html' %}
+    <style>
+        .import div{
+            padding:2rem;
+        }
+    </style>
+</head>
+<body>
+    {% include 'web/navbar.html' %}
+    <div class="container">
+        <div class="import">
+            <div>
+                <h1>File Import</h1>
+            </div>
+            <div>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="importData">
+                    <p>Please select format of file.</p>
+                    <button class="btn btn-primary" type="submit">Import</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

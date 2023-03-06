@@ -11,6 +11,7 @@ from .serializers import coaSerializer, productSerializer, UserSerializer, admin
 
 class Pagination(PageNumberPagination):
     page_size = 10
+    page_size_query_param = 'page_size'
 
 class coaViewSet(viewsets.ModelViewSet):
     queryset = coa.objects.all()
