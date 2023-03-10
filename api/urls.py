@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
+from .views import *
 
 from .views import coaViewSet, productViewSet, UserCreate, adminCreate, hrViewSet
 
@@ -13,4 +14,5 @@ urlpatterns += [
     path('signup/', UserCreate.as_view()),
     path('signup-admin/', adminCreate.as_view()),
     path('api-auth/', include('rest_framework.urls')),
+    path('test/', test),
 ]

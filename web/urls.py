@@ -24,4 +24,5 @@ urlpatterns = [
     path('hr/export', views.hr_export),
     path('hr/import', views.hr_import),
     path('login/', views.login),
+    path('test/', views.test),
 ]

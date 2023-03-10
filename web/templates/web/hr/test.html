@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    {% include '../base.html' %}
+</head>
+<body>
+    {% include 'web/navbar.html' %}
+        <!-- 템플릿 태그 로드 -->
+        1
+    {% load rest_framework %}
+    
+    <!-- 데이터 리스트 렌더링 -->
+    <ul>
+    {% for item in page.object_list %}
+        <li>{{ item }}</li>
+    {% endfor %}
+    </ul>
+    
+    <!-- 페이지네이션 렌더링 -->
+    {% comment %} {% paginate %} {% endcomment %}
+
+    <!-- 페이지 번호 버튼 렌더링 -->
+    <div class="btn-group">
+        {% for num in page.paginator.page_range %}
+            {% if num == page.number %}
+                <button class="btn btn-primary">{{ num }}</button>
+            {% else %}
+                <a href="?page={{ num }}" class="btn btn-default">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</body>
+</html>

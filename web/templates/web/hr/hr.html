@@ -44,19 +44,16 @@
             text-decoration: underline;
           }
           
-          .prev {
+          #page-down #page-up {
             position: absolute;
             left: -2.5rem;
-          }
-          
-          .next {
-            position: absolute;
-            right: -2.5rem;
           }
 
           .dropdown-item:hover {
             background-color : skyblue;
           }
+
+          
     </style>
 </head>
 <body>
@@ -66,8 +63,8 @@
             <h1>재직자</h1>
             <form id="search">
                 <div align="left">
-                    <input type="text" value="">
-                    <button type="submit">검색</button>
+                    <input type="text" id="search_val" value="">
+                    <input type="button" onclick=search() value="검색">
                 </div>
             </form>
             <div align="right">
@@ -80,121 +77,125 @@
                     <tbody class="table_body"></tbody>
                 </table>
             </div>
-            {% include 'web/pagination.html'%}
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center" id="pagination"></ul>
+            </nav>
         </div>
     </div>
     <script>
-        var current_url = $(location).attr('href');
-        var data_length;
+        var data_count, data_page_count, next, previous, pg, sort_key, page_key, search_word;
+        window.onload = pagination(1);
 
-        var pk = current_url.split('/')[5];
-        if(pk == ''){
-            pk = 1;
+        function sort(key){
+            sort_key = key;
+            pagination(page_key);
         }
-        
-        var url	= "/api/hr/?재직or퇴직=재직&page=";
-        $.ajax ({
-            url	: url + pk,
-            type : "GET",
-            contentType: 'application/json; charset=UTF-8',
-            success : function(data, status, xhr) {
-                console.log(status);
-                console.log(data)
-                data_length = data['count'];
-                data = data['results'];
-                str = '';
-                temp = '<TR>';
-                for(var i=0; i<Object.keys(data[0]).length-1; i++){
-                    temp += '<TD>' + Object.keys(data[0])[i] + '</TD>';
-                }
-                
-                temp += '<TD></TD>';
-                temp += '</TR>';
 
-                $('.table_head').append(temp);
-
-                $.each(data , function(i){
-                    str += '<TR>';
-                    data_key = Object.keys(data[i]);
+        function search(){
+            pagination(page_key);
+        }
+      
+        function pagination(pk){
+            search_word = $('#search_val').val();
+            page_key = pk;
+            $.ajax ({
+                url	: `/api/hr/?재직or퇴직=재직&ordering=${sort_key}&search=${search_word}&page=${pk}`,
+                type : "GET",
+                contentType: 'application/json; charset=UTF-8',
+                success : function(data, status, xhr) {
+                    data_count = data['count'];
+                    data_page_count = Math.floor(data_count/10);
+                    console.log(data_page_count);
+                    if(data_count % 10 != 0)
+                        data_page_count += 1;
                     
-                    for(var j = 0; j<data_key.length-1; j++){
-                        str += '<TD>' + data[i][data_key[j]] + '</TD>'
+                    if(data_page_count == 0)
+                        pk = 0;
+                    next = pk + 1;
+                    previous = pk - 1;
+        
+                    if(previous < 1)
+                    previous = 1;
+        
+                    if(next > data_page_count)
+                    next = data_page_count;
+        
+                    pg =
+                    `<li aria-label="Previous" class="page-item page-link" id="page-down" onclick="pagination(${previous})"><span aria-hidden="true">&laquo;</span></li> \
+                    <li id="page" class="page-link">${pk}/${data_page_count}</li> \
+                    <li aria-label="Next" id="page-up" class="page-item page-link" onclick="pagination(${next})"><span aria-hidden="true">&raquo;</span></li>`;
+            
+                    $('#pagination').html(pg);
+        
+                    data = data['results'];
+                    str = '';
+                    temp = '<TR>';
+                    for(var i=0; i<Object.keys(data[0]).length-1; i++){
+                        var key = String(Object.keys(data[0])[i]);
+                        temp +=
+                        `<TD> \
+                        <div class="dropdown"> \
+                        <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">${Object.keys(data[0])[i]}</a> \
+                        <ul class="dropdown-menu"> \
+                        <li><a class="dropdown-item" onclick="sort('${key}')">오름차순</a></li> \
+                        <li><a class="dropdown-item" onclick="sort('-${key}')">내림차순</a></li> \
+                        </ul> \
+                        </div> \
+                        </TD>`
                     }
                     
-                    str += '<TD><div class="dropdown"><button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">옵션</button>'
-                    str += '<ul class="dropdown-menu">'
-                    str += '<li><a class="dropdown-item" href="/web/hr_detail/'+ data[i].사번 +'">수정</a></li>'
-                    str += '<li class="dropdown-item" onclick="retired('+ data[i].사번 +')">퇴직</li>'
-                    str += '</ul></div></TD>'
-                    str += '</TR>';
-                });
-
-                $('.table_body').append(str);
-            },
-            error	: function(xhr, status, error) {
-                    console.log(status);
-            },
-            complete : function(xhr, status) {
-                console.log(status);
-            }
-        });
-
-        function retired(id){
-            var json_data = {"재직or퇴직" : "퇴직"};
-
-            $.ajax({
-                url: "/api/hr/" + id + "/",
-                method: "PATCH",
-                data:JSON.stringify(json_data),
-                contentType: 'application/json; charset=UTF-8',
-                success: function(data, status, xhr) {
-                    console.log("retired 성공");
-                    location.reload();
+                    temp += '<TD></TD></TR>';
+        
+                    $('.table_head').html(temp);
+        
+                    $.each(data , function(i){
+                        str += '<TR>';
+                        data_key = Object.keys(data[i]);
+                        
+                        for(var j = 0; j<data_key.length-1; j++){
+                            str += '<TD>' + data[i][data_key[j]] + '</TD>'
+                        }
+                        
+                        str += 
+                        `<TD> \
+                        <div class="dropdown"> \
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">옵션</button> \
+                        <ul class="dropdown-menu"> \
+                        <li><a class="dropdown-item" href="/web/hr_detail/${data[i].사번}">수정</a></li> \
+                        <li class="dropdown-item" onclick="retired(${data[i].사번})">퇴직</li> \
+                        </ul> \
+                        </div> \
+                        </TD> \
+                        </TR>`
+                    });
+        
+                $('.table_body').html(str);
                 },
-                error: function(xhr, status, error) {
-                    console.log("retired 에러");
+                error	: function(xhr, status, error) {
+                        console.log(status);
+                },
+                complete : function(xhr, status) {
                 }
             });
         }
-
-        var pagestart = 1;
-
-        function up(){
-            pagestart += 5;
-            if(pagestart < 1){
-                pagestart = 1;
-            }
-            if(pagestart > data_length/10){
-                pagestart = data_length/10;
-            }
-            
-            console.log(data_length/10);
-            console.log(pagestart);
-
-            for(let i = pagestart; i<pagestart+5; i++){
-                $(".page-button"+ (i-5)).html('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/hr/'+i+'">'+i+'</a></li>');
-            }
-        }
-
-        function down(){
-            pagestart -= 5;
-
-            if(pagestart < 1){
-                pagestart = 1;
-            }
-            console.log(pagestart);
-            for(let i = pagestart; i<pagestart+5; i++){
-                $(".page-button"+ (i+5)).html('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/hr/'+i+'">'+i+'</a></li>');
-            }
-        }
-
-        for(let i = pagestart+4; i>pagestart-1; i--){
-            $("#page-down").after('<li class="page-button'+i+'" value='+i+'><a class="page-link" href="/web/hr/'+i+'">'+i+'</a></li>');
-        }
-
-        window.onload = function(){
-            $(".page-button"+ pk).html('<li class="page-button'+pk+' active" value='+pk+'><a class="page-link" href="/web/hr/'+pk+'">'+pk+'</a></li>');
-        }
+      
+        function retired(id){
+          var json_data = {"재직or퇴직" : "퇴직"};
+      
+          $.ajax({
+              url: "/api/hr/" + id + "/",
+              method: "PATCH",
+              data:JSON.stringify(json_data),
+              contentType: 'application/json; charset=UTF-8',
+              success: function(data, status, xhr) {
+                  console.log("retired 성공");
+                  location.reload();
+              },
+              error: function(xhr, status, error) {
+                  console.log("retired 에러");
+              }
+          });
+      }
     </script>
 </body>
 </html>

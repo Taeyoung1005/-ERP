@@ -1,14 +1,117 @@
-<nav aria-label="Page navigation example">
+{% comment %} <nav aria-label="Page navigation example">
   <ul class="pagination justify-content-center">
     <li class="page-item" id="page-down" onclick=down()>
       <a class="page-link" aria-label="Previous">
         <span aria-hidden="true">&laquo;</span>
       </a>
     </li>
-    <li class="page-item" id="page-up"  onclick=up()>
+    <li class="page-num"></li>
+    <li class="page-item" id="page-up" onclick=up()>
       <a class="page-link" aria-label="Next">
         <span aria-hidden="true">&raquo;</span>
       </a>
     </li>
   </ul>
-</nav>
+</nav> {% endcomment %}
+
+<script>
+  var data_count, data_page_count, next, previous;
+  window.onload = pagination(1);
+
+  function pagination(pk){
+    $.ajax ({
+      url	: `/api/hr/?재직or퇴직=재직&page=${pk}`,
+      type : "GET",
+      contentType: 'application/json; charset=UTF-8',
+      success : function(data, status, xhr) {
+          data_count = data['count'];
+          data_page_count = data_count/10 ;
+          if(data_count % 10 != 0)
+            data_page_count += 1;
+
+          next = pk + 1;
+          previous = pk - 1;
+
+          if(previous < 1)
+            previous = 1;
+
+          if(next > data_page_count)
+            next = data_page_count;
+
+          pg +=
+          `<li id="page-down" onclick="pagination(${previous})"><<</li> \
+          <li id="page">${pk}/${data_page_count}</li> \
+          <li id="page-up" onclick="pagination(${next})">>></li>`
+  
+          $('.pagination').html(pg);
+
+          data = data['results'];
+          str = '';
+          temp = '<TR>';
+          for(var i=0; i<Object.keys(data[0]).length-1; i++){
+              var key = String(Object.keys(data[0])[i]);
+              temp +=
+              `<TD> \
+              <div class="dropdown"> \
+              <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">${Object.keys(data[0])[i]}</a> \
+              <ul class="dropdown-menu"> \
+              <li><a class="dropdown-item" onclick="sort('${key}')">오름차순</a></li> \
+              <li><a class="dropdown-item" onclick="sort('-${key}')">내림차순</a></li> \
+              </ul> \
+              </div> \
+              </TD>`
+          }
+          
+          temp += '<TD></TD></TR>';
+
+          $('.table_head').append(temp);
+
+          $.each(data , function(i){
+              str += '<TR>';
+              data_key = Object.keys(data[i]);
+              
+              for(var j = 0; j<data_key.length-1; j++){
+                  str += '<TD>' + data[i][data_key[j]] + '</TD>'
+              }
+              
+              str += 
+              `<TD> \
+              <div class="dropdown"> \
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">옵션</button> \
+              <ul class="dropdown-menu"> \
+              <li><a class="dropdown-item" href="/web/hr_detail/${data[i].사번}">수정</a></li> \
+              <li class="dropdown-item" onclick="retired(${data[i].사번})">퇴직</li> \
+              </ul> \
+              </div> \
+              </TD> \
+              </TR>`
+          });
+
+        $('.table_body').append(str);
+      },
+      error	: function(xhr, status, error) {
+              console.log(status);
+      },
+      complete : function(xhr, status) {
+      }
+    });
+  }
+
+  function retired(id){
+    var json_data = {"재직or퇴직" : "퇴직"};
+
+    $.ajax({
+        url: "/api/hr/" + id + "/",
+        method: "PATCH",
+        data:JSON.stringify(json_data),
+        contentType: 'application/json; charset=UTF-8',
+        success: function(data, status, xhr) {
+            console.log("retired 성공");
+            location.reload();
+        },
+        error: function(xhr, status, error) {
+            console.log("retired 에러");
+        }
+    });
+}
+<script>
